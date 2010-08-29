@@ -16,7 +16,7 @@ Within your application, you can use parrot like the following:
 
 	var parrot = require('./lib/parrot');
 	
-	var output = parrot(input);
+	var output = parrot.render(input);
 	
 Where the input variable is a string you would like parrot to render. If you would like to render a file, do the following:
 
@@ -25,7 +25,7 @@ Where the input variable is a string you would like parrot to render. If you wou
 		
 	fs.readFile(file, function(data) {
 		
-		var output = parrot(data);	
+		var output = parrot.render(data);	
 	});
 	
 Where file is a string value of the file you wish to render, and output is the rendered template.
@@ -71,7 +71,7 @@ If you wish to expose functions and variables to the script, you can provide the
 		return a * a;
 	}
 	
-	var output = parrot(input, {
+	var output = parrot.render(input, {
 		square: square
 	});
 	
