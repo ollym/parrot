@@ -154,8 +154,8 @@ Example:
 The tags property allows you to define what tags you want in your template. By default they are: <% and %> but you can use this property to set them to whatever you want.
 
 Default: {
-	start: '<%',
-	end: '%>'
+   start: '<%',
+   end: '%>'
 }
 
 Example:
