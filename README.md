@@ -6,9 +6,9 @@ All feedback is welcome.
 
 ## Quick Start
 
-Open up your project folder, create a folder called 'lib' if it doesn't exist already. Navigate to that folder using terminal or equivalent, and run the following command:
+Open up your project folder, create a folder called 'lib/parrot' if it doesn't exist already. Navigate to that folder and place the parrot index.js within that folder. The url to download the parrot files can be found here:
 
-	curl http://nodeload.github.com
+	http://github.com/ollym/parrot/zipball/master
 	
 You should now have the parrot library installed in the lib/parrot folder.
 
