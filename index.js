@@ -1,9 +1,124 @@
-var Script = process.binding('evals').Script;
+var crypto = require('crypto'),
+    Script = process.binding('evals').Script,
+    cache  = { };
 
-exports.render = function(data, sandbox) {
+// Defines parrot's version
+exports.version = '0.2.0';
 
-    // Default sanbox to an empty object
-    sandbox = sandbox || {};
+// Global configuration
+exports.config = {
+    sandbox: { },
+    cache: 5,
+    buffer: true,
+    tags: {
+        start: '<%',
+        end: '%>'
+    }
+};
+
+/**
+ * Clear's parrots internal cache
+ *
+ * @return undefined
+ */
+exports.clearCache = function() {
+
+    cache = {};
+}
+
+/**
+ * Renders a template
+ *
+ * @param  data   string The input data
+ * @param  config object Any optional configuration options
+ * @return The rendered template
+ */
+exports.render = function(data, config, onprint) {
+
+    // If config is given as a function
+    if (typeof config === 'function') {
+
+        // Swap the parameters
+        onprint = config;
+        config  = undefined;
+    }
+
+    if (config === undefined) {
+
+        // Use the global defaults
+        config = exports.config;
+    }
+    else {
+
+        // Set the cache configuration if none is defiend
+        config.cache = config.cache || exports.config.cache;
+
+        if (config.tags === undefined) {
+
+            // Default to the global tags
+            config.tags = exports.config.tags;
+        }
+        else {
+
+            // Default to the global tags if they aren't set
+            config.tags.start = config.tags.start || exports.config.tags.start;
+            config.tags.end   = config.tags.start || exports.config.tags.start;
+        }
+
+        if (config.sandbox === undefined) {
+
+            // Set the sandbox defaults
+            config.sandbox = exports.config.sandbox;
+        }
+        else {
+
+            // Default to the global sandbox
+            var sandbox = exports.config.sandbox;
+
+            // Loop through each item in the sandbox
+            for (var key in config.sandbox) {
+
+                // And overwrite any existing sandbox item
+                sandbox[key] = config.sandbox[key];
+            }
+
+            // Replace the merged sandbox
+            config.sandbox = sandbox;
+        }
+    }
+
+    // Short forms for the start and end tags and get the parent callee
+    var et     = config.tags.end,
+        st     = config.tags.start,
+        ident  = crypto.createHash('md5').update(data).digest('base64'),
+        output = '';
+
+    // Override the print function
+    config.sandbox.print = function(chunk) {
+    
+        // We can only accept strings
+        chunk = chunk.toString();
+
+        // If the buffer configuration was set to false and the user defined a function
+        if ( ! config.buffer && typeof onprint === 'function') {
+
+            // Call the function with the data chunk
+            onprint.call(this, chunk);
+        }
+
+        // Append any data to the output buffer
+        output += chunk;
+    }
+
+    // If the output is already cached
+    if (cache[ident] !== undefined) {
+
+        // Print the entire output
+        config.sandbox.print(cache[ident]);
+
+        // And return the output
+        return output;
+    }
 
     // Parrot can only process strings
     data = data.toString();
@@ -12,27 +127,37 @@ exports.render = function(data, sandbox) {
     data = 'print("' + data.replace(/"/gm, '\\"') + '");';
 
     // Compile the input into executable javascript
-    data = data.replace(/:\s*%>/gm, '{ %>')
-        .replace(/<%=\s*(.+)\s*%>/gm, '"); print($1); print("')
-        .replace(/<%\s*end(if|while|for|switch);*\s*%>/gmi, '"); } print("')
-        .replace(/<%\s*(.+)\s*%>/gm, '"); $1 print("')
+    data = data.replace(new RegExp(':\\s*' + et, 'gm'), '{ %>')
+        .replace(new RegExp(st + '=\\s*(.+)\\s*' + et, 'gm'), '"); print($1); print("')
+        .replace(new RegExp(st + '\\s*end(if|while|for|switch);*\\s*' + et, 'gmi'), '"); } print("')
+        .replace(new RegExp(st + '\\s*(.+)\\s*' + et, 'gm'), '"); $1 print("')
         .replace(/(\r\n|\r|\n)/gmi, '\\$1');
 
-    // Get ready to take the output data
-    var output = '';
+    // Execute the script, rendering the template
+    Script.runInNewContext(data, config.sandbox);
 
-    // Override the print function
-    sandbox.print = function(data) {
+    // If we have a valid cache amount
+    if (config.cache > 0) {
 
-        // Append any data to the output buffer
-        output += data;
+        // Cache the output
+        cache[ident] = output;
+
+        // Set a timeout of the time
+        setTimeout(function() {
+
+            // Delete the cache entry
+            delete cache[ident];
+            
+        }, config.cache);
     }
 
-    console.log(data);
+    // If we have been buffering the output and onprint is a function
+    if (config.buffer && typeof onprint == 'function') {
 
-    // Execute the script, rendering the template
-    Script.runInNewContext(data, sandbox);
+        // Return the output value
+        return onprint.call(this, output);
+    }
 
     // Return the output
     return output;
-}
+};

@@ -4,32 +4,13 @@ Parrot is an incredibly lightweight, and super fast templating engine for node.j
 
 All feedback is welcome.
 
-## Quick Start
+## Installation
 
 Open up your project folder, create a folder called 'lib/parrot' if it doesn't exist already. Navigate to that folder and place the parrot index.js within that folder. The url to download the parrot files can be found here:
 
 	http://github.com/ollym/parrot/zipball/master
 	
 You should now have the parrot library installed in the lib/parrot folder.
-
-Within your application, you can use parrot like the following:
-
-	var parrot = require('./lib/parrot');
-	
-	var output = parrot.render(input);
-	
-Where the input variable is a string you would like parrot to render. If you would like to render a file, do the following:
-
-	var parrot = require('./lib/parrot'),
-		fs     = require('fs');
-		
-	fs.readFile(file, function(data) {
-		
-		var output = parrot.render(data);	
-	});
-	
-Where file is a string value of the file you wish to render, and output is the rendered template.
-
 ## Syntax Reference
 
 Being lightweight, parrot offloads a lot of the processing to the V8 interpreter, which compiles the code and runs as fast as the rest of your application. In fact, parrot shouldn't add any overhead to your application at all! For this reason, the syntax within the parrot tags is javascript. You can perform any function you wish within the bounds of javascript and node.js.
@@ -60,10 +41,63 @@ As supposed to the example above, it can also be written as:
 	<% } %>
 	</html>
 	
-As you would have noticed, the colon (:) and endfor directives have been replaced with curley brackets, and the <%= %> tags have been replaced with a print() function. Parrot works by buffering data sent using print() before returning it to the user.
+As you would have noticed, the colon (:) and endfor directives have been replaced with curly brackets, and the <%= %> tags have been replaced with a print() function. Parrot works by buffering data sent using print() before returning it to the user.
 
-## Advanced Usage
-If you wish to expose functions and variables to the script, you can provide them within an object as the second parameter to the parrot function. For example:
+## API Reference
+
+Within your application, you can use parrot like the following:
+
+	var parrot = require('./lib/parrot');
+	
+	var output = parrot.render(input);
+	
+Where the input variable is a string you would like parrot to render. If you would like to render a file, do the following:
+
+	var parrot = require('./lib/parrot'),
+		fs     = require('fs');
+		
+	fs.readFile(file, function(data) {
+		
+		var output = parrot.render(data);
+	});
+	
+Where file is a string value of the file you wish to render, and output is the rendered template.
+
+If you want to stream your template in chunks you can add a function as the second or third parameter and it will be called every time data is printed from the template. If the buffer configuration is set to true, then the entire output is provided to this function once rendering has ended. For example:
+
+	parrot.render(input, function(chunk) {
+		
+		// Send chunks as they are received
+		res.write(chunk);
+	});
+	
+Or if you have configurations set:
+
+	parrot.render(input, {cache: 0}, function(chunk) {
+		
+		// Send chunks as they are received
+		res.write(chunk);
+	});
+	
+> Note: If you have buffer set to true, then the chunk parameter passed to the callback function will be identical to the value returned by the method.
+	
+### Advanced Methods
+
+If you want to manually flush the internal cache, you can do so by using the parrot.clearCache() method. For example:
+
+	parrot.clearCache();
+
+## Configuration
+
+To configure parrot you have two available options: global or local. Altering parrot's global configuration will affect every rendering process that takes values from the global configuration as they're not already defined locally. Both local configuration settings are the same.
+
+### Sandbox
+
+The sandbox property defines any variables or methods that you want to expose to the template. These can be functions you want to allow your template to use, or variables defined earlier in your script.
+
+Default: {}
+
+Example:
 
 	var input = '<%= square(2) %>';
 
@@ -72,11 +106,65 @@ If you wish to expose functions and variables to the script, you can provide the
 	}
 	
 	var output = parrot.render(input, {
-		square: square
+		sandbox: {
+			square: square
+		}
 	});
 	
-Will output:
-
-	4
-
+	// Output = 4
+	
 > Note you cannot replace the print() function, as this is reserved by parrot.
+	
+### Cache
+
+Parrot will internally cache all rendered templates, which will dramatically reduce rendering time in future. Just incase you're loading dynamic content within your template, you define the cache property as an integer representing the number of seconds that parrot will hold the rendered template in the cache.
+
+Default: 3600 * 24 // 1 day (24 hours)
+
+Example:
+
+	parrot.render(input, {
+		cache: 3600 * 24 // Will cache a template for a whole day (24 hours)
+	});
+	
+> Note: If the cache value is set to 0 or below, then the rendered templates will not be cached.
+
+### Buffer
+
+If your template requires heavy processing, and to wait for the whole template to render before returning it to the client is not feasible, you can set the buffer property to false. This will prompt parrot to return data as it is printed to a function given as the 3rd parameter to the render method. This is advisable for all heavy duty templates, as it allows the client to start downloading header resources before the entire template is rendered.
+
+Default: false
+
+Example:
+
+	parrot.render(input {
+		buffer: false,
+	}, function(chunk) {
+		
+		// Write the chunk to the response stream
+		res.write(chunk);
+	});
+	
+> Note: If buffer is set to true and a function is provided as the 2nd/3rd parameter, it will write the entire output to that function.
+
+> Note: The render method will still return the entire output once the template is finished rendering.
+
+### Tags
+
+The tags property allows you to define what tags you want in your template. By default they are: <% and %> but you can use this property to set them to whatever you want.
+
+Default: {
+	start: '<%',
+	end: '%>'
+}
+
+Example:
+	
+	parrot.render(input, {
+		tags: {
+			start: '<?',
+			end: '?>'
+		}
+	});
+
+> Note: Short tags will always work with an appended equals sign (=) to your start tag. So for the example above, it will be set to <?= ?> automatically.
