@@ -4,6 +4,17 @@ Parrot is an incredibly lightweight, and super fast templating engine for node.j
 
 All feedback is welcome.
 
+### Features
+
+* Fully Configurable
+* Native Javascript Support
+* Compiled and interpreted by V8 (Super Fast)
+* Internal Caching
+* Buffering
+* Fully configurable Sandbox
+* Lightweight, Elegant & Fully Annotated Code
+* Thorough Documentation
+
 ## Installation
 
 Open up your project folder, create a folder called 'lib/parrot' if it doesn't exist already. Navigate to that folder and place the parrot index.js within that folder. The url to download the parrot files can be found here:
@@ -168,3 +179,27 @@ Example:
 	});
 
 > Note: Short tags will always work with an appended equals sign (=) to your start tag. So for the example above, it will be set to <?= ?> automatically.
+
+> Note: Tag values are prepended and appended to regular expressions, ensure you're tags are escaped or intentionally not so.
+
+## License 
+
+Copyright (c) 2010 Oliver Morgan (oliver.morgan@kohark.com)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
