@@ -27,7 +27,7 @@ var crypto = require('crypto'),
     cache  = { };
 
 // Defines parrot's version
-exports.version = '0.2.1';
+exports.version = '0.2.2';
 
 // Global configuration
 exports.config = {
@@ -74,8 +74,9 @@ exports.render = function(data, config, onprint) {
     }
     else {
 
-        // Set the cache configuration if none is defiend
-        config.cache = config.cache || exports.config.cache;
+        // Set the cache and buffer configuration if none is defiend
+        config.cache  = config.cache  || exports.config.cache;
+		config.buffer = config.buffer || exports.config.buffer; 
 
         if (config.tags === undefined) {
 
@@ -127,7 +128,7 @@ exports.render = function(data, config, onprint) {
         if ( ! config.buffer && typeof onprint === 'function') {
 
             // Call the function with the data chunk
-            onprint.call(this, chunk);
+            onprint(chunk);
         }
 
         // Append any data to the output buffer
@@ -155,8 +156,9 @@ exports.render = function(data, config, onprint) {
         .replace(new RegExp(st + '=\\s*(.+)\\s*' + et, 'gm'), '"); print($1); print("')
         .replace(new RegExp(st + '\\s*end(if|while|for|switch);*\\s*' + et, 'gmi'), '"); } print("')
         .replace(new RegExp(st + '\\s*(.+)\\s*' + et, 'gm'), '"); $1 print("')
-        .replace(/(\r\n|\r|\n)/gmi, '\\$1');
-
+        .replace(/\n/gm, '\\n')
+		.replace(/\r/gm, '\\r');
+	
     // Execute the script, rendering the template
     Script.runInNewContext(data, config.sandbox);
 
@@ -179,7 +181,7 @@ exports.render = function(data, config, onprint) {
     if (config.buffer && typeof onprint == 'function') {
 
         // Return the output value
-        return onprint.call(this, output);
+        return onprint(output);
     }
 
     // Return the output
