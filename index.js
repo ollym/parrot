@@ -31,7 +31,7 @@ exports.version = '0.2.2';
 
 // Global configuration
 exports.config = {
-    sandbox: { },
+    sandbox: {},
     cache: 5,
     buffer: true,
     tags: {
@@ -58,7 +58,7 @@ exports.clearCache = function() {
  * @return The rendered template
  */
 exports.render = function(data, config, onprint) {
-
+	
     // If config is given as a function
     if (typeof config === 'function') {
 
@@ -87,7 +87,7 @@ exports.render = function(data, config, onprint) {
 
             // Default to the global tags if they aren't set
             config.tags.start = config.tags.start || exports.config.tags.start;
-            config.tags.end   = config.tags.start || exports.config.tags.start;
+            config.tags.end   = config.tags.end || exports.config.tags.end;
         }
 
         if (config.sandbox === undefined) {
@@ -152,12 +152,14 @@ exports.render = function(data, config, onprint) {
     data = 'print("' + data.replace(/"/gm, '\\"') + '");';
 
     // Compile the input into executable javascript
-    data = data.replace(new RegExp(':\\s*' + et, 'gm'), '{ %>')
-        .replace(new RegExp(st + '=\\s*(.+)\\s*' + et, 'gm'), '"); print($1); print("')
-        .replace(new RegExp(st + '\\s*end(if|while|for|switch);*\\s*' + et, 'gmi'), '"); } print("')
-        .replace(new RegExp(st + '\\s*(.+)\\s*' + et, 'gm'), '"); $1 print("')
-        .replace(/\n/gm, '\\n')
-		.replace(/\r/gm, '\\r');
+    data = data
+		.replace(new RegExp(':\\s*' + et, ['g', 'm']), '{ %>')
+        .replace(new RegExp(st + '=(.+)' + et, ['g', 'm']), '"); print($1); print("')
+        .replace(new RegExp(st + '\\s*end(if|while|for|switch);*\\s*' + et, ['g', 'm', 'i']), '"); } print("')
+        .replace(new RegExp(st + '(.+)' + et, ['g', 'm']), '"); $1 print("')
+		.replace(new RegExp('\n', ['g', 'm']), '\\n')
+		.replace(new RegExp('\r', ['g', 'm']), '\\r')
+		.replace(new RegExp('\t', ['g', 'm']), '\\t');
 	
     // Execute the script, rendering the template
     Script.runInNewContext(data, config.sandbox);
