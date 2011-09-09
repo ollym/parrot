@@ -17,6 +17,18 @@ All feedback is welcome.
 
 ## Installation
 
+### NPM (Node Package Manager)
+
+The easiest way to install parrot is by using NPM as follows:
+
+    npm install parrot
+
+Or globally by:
+
+    npm install -g parrot
+    
+### Alternatively
+
 Open up your project folder, create a folder called 'lib/parrot' if it doesn't exist already. Navigate to that folder and place the parrot index.js within that folder. The url to download the parrot files can be found here:
 
 	http://github.com/ollym/parrot/zipball/master

@@ -1,0 +1,13 @@
+{
+  "name"         : "parrot",
+  "description"  : "A lightning fast and lightweight templating engine for Node.js.",
+  "keywords"     : ["template"],
+  "homepage"     : "https://github.com/ollym/parrot",
+  "version"      : "0.3.0",
+  "author"       : "Oliver Morgan <ollym@me.com>",
+  "contributors" : [],
+  "dependencies" : [],
+  "repository"   : { "type": "git", "url": "git://github.com/ollym/parrot.git" },
+  "main"         : "parrot.js" ,
+  "engines"      : { "node": ">= 0.4.9 < 0.7.0" }
+}
