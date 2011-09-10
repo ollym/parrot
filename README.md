@@ -40,29 +40,35 @@ Being lightweight, parrot offloads a lot of the processing to the V8 interpreter
 
 ### Basic Example
 Below is a basic example of parrot's usage syntax.
-	
-	<html>
-	<% for(var i = 0; i < 3; i++) : %>
-		<div>I am div #<%= i %></div>
-	<% endfor; %>
-	</html>
+
+```html
+<html>
+<% for(var i = 0; i < 3; i++) : %>
+    <div>I am div #<%= i %></div>
+<% endfor; %>
+</html>
+```
 
 Will render as:
 
-	<html>
-		<div>I am div #0</div>
-		<div>I am div #1</div>
-		<div>I am div #2</div>
-	</html>
-	
+```html
+<html>
+	<div>I am div #0</div>
+	<div>I am div #1</div>
+	<div>I am div #2</div>
+</html>
+```
+
 ### Alternative Syntax
 As supposed to the example above, it can also be written as:
 
-	<html>
-	<% for(var i = 0; i < 3; i++) { %>
-		<div>I am div #<% print(i) %></div>
-	<% } %>
-	</html>
+```html
+<html>
+<% for(var i = 0; i < 3; i++) { %>
+	<div>I am div #<% print(i) %></div>
+<% } %>
+</html>
+```
 	
 As you would have noticed, the colon (:) and endfor directives have been replaced with curly brackets, and the <%= %> tags have been replaced with a print() function. Parrot works by buffering data sent using print() before returning it to the user.
 
@@ -70,9 +76,11 @@ As you would have noticed, the colon (:) and endfor directives have been replace
 
 Within your application, you can use parrot like the following:
 
-	var parrot = require('./lib/parrot');
-	
-	var output = parrot.render(input);
+```javascript
+var parrot = require('./lib/parrot');
+
+var output = parrot.render(input);
+```
 	
 Where the input variable is a string you would like parrot to render. If you would like to render a file, do the following:
 
@@ -89,19 +97,23 @@ Where file is a string value of the file you wish to render, and output is the r
 
 If you want to stream your template in chunks you can add a function as the second or third parameter and it will be called every time data is printed from the template. If the buffer configuration is set to true, then the entire output is provided to this function once rendering has ended. For example:
 
-	parrot.render(input, function(chunk) {
-		
-		// Send chunks as they are received
-		res.write(chunk);
-	});
+```javascript
+parrot.render(input, function(chunk) {
+	
+// Send chunks as they are received
+res.write(chunk);
+});
+```
 	
 Or if you have configurations set:
 
-	parrot.render(input, {cache: 0}, function(chunk) {
+```javascript
+parrot.render(input, {cache: 0}, function(chunk) {
 		
-		// Send chunks as they are received
-		res.write(chunk);
-	});
+// Send chunks as they are received
+res.write(chunk);
+});
+```
 	
 > Note: If you have buffer set to true, then the chunk parameter passed to the callback function will be identical to the value returned by the method.
 	
@@ -109,7 +121,9 @@ Or if you have configurations set:
 
 If you want to manually flush the internal cache, you can do so by using the parrot.clearCache() method. For example:
 
-	parrot.clearCache();
+```javascript
+parrot.clearCache();
+```
 
 ## Configuration
 
@@ -123,19 +137,21 @@ Default: {}
 
 Example:
 
-	var input = '<%= square(2) %>';
+```javascript
+var input = '<%= square(2) %>';
 
-	var square = function(a) {
-		return a * a;
+var square = function(a) {
+	return a * a;
+}
+	
+var output = parrot.render(input, {
+	sandbox: {
+		square: square
 	}
+});
 	
-	var output = parrot.render(input, {
-		sandbox: {
-			square: square
-		}
-	});
-	
-	// Output = 4
+// Output = 4
+```
 	
 > Note you cannot replace the print() function, as this is reserved by parrot.
 	
@@ -147,9 +163,11 @@ Default: 3600 * 24 // 1 day (24 hours)
 
 Example:
 
-	parrot.render(input, {
-		cache: 3600 * 24 // Will cache a template for a whole day (24 hours)
-	});
+```javascript
+parrot.render(input, {
+	cache: 3600 * 24 // Will cache a template for a whole day (24 hours)
+});
+```
 	
 > Note: If the cache value is set to 0 or below, then the rendered templates will not be cached.
 
@@ -161,13 +179,15 @@ Default: false
 
 Example:
 
-	parrot.render(input {
-		buffer: false,
-	}, function(chunk) {
-		
-		// Write the chunk to the response stream
-		res.write(chunk);
-	});
+```javascript
+parrot.render(input {
+	buffer: false,
+}, function(chunk) {
+	
+	// Write the chunk to the response stream
+    res.write(chunk);
+});
+```
 	
 > Note: If buffer is set to true and a function is provided as the 2nd/3rd parameter, it will write the entire output to that function.
 
@@ -183,13 +203,15 @@ Default: {
 }
 
 Example:
-	
-	parrot.render(input, {
-		tags: {
-			start: '<?',
-			end: '?>'
-		}
-	});
+
+```javascript
+parrot.render(input, {
+	tags: {
+		start: '<?',
+		end: '?>'
+	}
+});
+```
 
 > Note: Short tags will always work with an appended equals sign (=) to your start tag. So for the example above, it will be set to <?= ?> automatically.
 
