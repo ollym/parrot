@@ -77,7 +77,7 @@ As you would have noticed, the colon (:) and endfor directives have been replace
 Within your application, you can use parrot like the following:
 
 ```javascript
-var parrot = require('./lib/parrot');
+var parrot = require('parrot');
 
 var output = parrot.render(input);
 ```
@@ -85,7 +85,7 @@ var output = parrot.render(input);
 Where the input variable is a string you would like parrot to render. If you would like to render a file, do the following:
 
 ```javascript
-var parrot = require('./lib/parrot');
+var parrot = require('parrot');
 var fs     = require('fs');
 fs.readFile(file, encoding, function(err, data) {
 	if (err) throw err;
