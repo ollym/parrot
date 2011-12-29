@@ -23,7 +23,7 @@
  */
 
 var crypto = require('crypto'),
-	Script = process.binding('evals').Script,
+	Script = require('vm'),
 	cache  = { };
 
 // Defines parrot's version
@@ -153,13 +153,13 @@ exports.render = function(data, config, onprint) {
 
 	// Compile the input into executable javascript
 	data = data
-		.replace(new RegExp(':\\s*' + et, ['g', 'm']), '{ %>')
-		.replace(new RegExp(st + '=(.+)' + et, ['g', 'm']), '"); print($1); print("')
-		.replace(new RegExp(st + '\\s*end(if|while|for|switch);*\\s*' + et, ['g', 'm', 'i']), '"); } print("')
-		.replace(new RegExp(st + '(.+)' + et, ['g', 'm']), '"); $1 print("')
-		.replace(new RegExp('\n', ['g', 'm']), '\\n')
-		.replace(new RegExp('\r', ['g', 'm']), '\\r')
-		.replace(new RegExp('\t', ['g', 'm']), '\\t');
+		.replace(new RegExp(':\\s*' + et, 'gm'), '{ %>')
+		.replace(new RegExp(st + '=(.+)' + et, 'gm'), '"); print($1); print("')
+		.replace(new RegExp(st + '\\s*end(if|while|for|switch);*\\s*' + et, 'gmi'), '"); } print("')
+		.replace(new RegExp(st + '(.+)' + et, 'gm'), '"); $1 print("')
+		.replace(new RegExp('\n', 'gm'), '\\n')
+		.replace(new RegExp('\r', 'gm'), '\\r')
+		.replace(new RegExp('\t', 'gm'), '\\t');
 	
 	// Execute the script, rendering the template
 	Script.runInNewContext(data, config.sandbox);
