@@ -48,7 +48,7 @@ exports.config = {
 exports.clearCache = function() {
 
 	cache = {};
-}
+};
 
 /**
  * Renders a template
@@ -76,7 +76,7 @@ exports.render = function(data, config, onprint) {
 
 		// Set the cache and buffer configuration if none is defiend
 		config.cache  = config.cache  || exports.config.cache;
-		config.buffer = config.buffer || exports.config.buffer; 
+		config.buffer = config.buffer || exports.config.buffer;
 
 		if (config.tags === undefined) {
 
@@ -87,7 +87,7 @@ exports.render = function(data, config, onprint) {
 
 			// Default to the global tags if they aren't set
 			config.tags.start = config.tags.start || exports.config.tags.start;
-			config.tags.end   = config.tags.end || exports.config.tags.end;
+			config.tags.end   = config.tags.end   || exports.config.tags.end;
 		}
 
 		if (config.sandbox === undefined) {
@@ -113,8 +113,8 @@ exports.render = function(data, config, onprint) {
 	}
 
 	// Short forms for the start and end tags and get the parent callee
-	var et	 = config.tags.end,
-		st	 = config.tags.start,
+	var et     = config.tags.end,
+		st     = config.tags.start,
 		ident  = crypto.createHash('md5').update(data).digest('base64'),
 		output = '';
 
@@ -133,7 +133,7 @@ exports.render = function(data, config, onprint) {
 
 		// Append any data to the output buffer
 		output += chunk;
-	}
+	};
 
 	// If the output is already cached
 	if (cache[ident] !== undefined) {
@@ -147,19 +147,23 @@ exports.render = function(data, config, onprint) {
 
 	// Parrot can only process strings
 	data = data.toString();
-		
-	// Escape double quoted strings and default to print
-	data = 'print("' + data.replace(/"/gm, '\\"') + '");';
 
 	// Compile the input into executable javascript
 	data = data
-		.replace(new RegExp(':\\s*' + et, 'gm'), '{ %>')
-		.replace(new RegExp(st + '=(.+)' + et, 'gm'), '"); print($1); print("')
-		.replace(new RegExp(st + '\\s*end(if|while|for|switch);*\\s*' + et, 'gmi'), '"); } print("')
-		.replace(new RegExp(st + '(.+)' + et, 'gm'), '"); $1 print("')
-		.replace(new RegExp('\n', 'gm'), '\\n')
-		.replace(new RegExp('\r', 'gm'), '\\r')
-		.replace(new RegExp('\t', 'gm'), '\\t');
+		.replace(new RegExp('(^|' + et + ')[^]+?($|' + st + ')', 'g'), function(match) {
+			return match
+				.replace(/"/g,  '\\"')
+				.replace(/\n/g, '\\n')
+				.replace(/\r/g, '\\r')
+				.replace(/\t/g, '\\t');
+		})
+		.replace(new RegExp(':\\s*' + et, 'gm'), '{ ' + et)
+		.replace(new RegExp(st + '=([^]+?)' + et, 'gm'), '");\nprint($1);\nprint("')
+		.replace(new RegExp(st + '\\s*end(if|while|for|switch);?\\s*' + et, 'gmi'), '");\n}\nprint("')
+		.replace(new RegExp(st + '([^]+?)' + et, 'gm'), '");\n$1\nprint("');
+
+	// Add outer print function
+	data = 'print("' + data + '");';
 	
 	// Execute the script, rendering the template
 	Script.runInNewContext(data, config.sandbox);
