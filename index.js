@@ -27,7 +27,7 @@ var crypto = require('crypto'),
 	cache  = { };
 
 // Defines parrot's version
-exports.version = '0.3.0';
+exports.version = '0.3.1';
 
 // Global configuration
 exports.config = {
