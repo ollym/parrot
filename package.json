@@ -3,16 +3,10 @@
   "description": "A lightning fast and lightweight templating engine for Node.js",
   "version": "0.3.1",
   "homepage": "https://github.com/ollym/parrot",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/ollym/parrot.git"
-  },
-  "author": "ollym",
-  "main": "index.js",
-  "directories": {
-    "lib": "."
-  },
-  "engines": {
-    "node": "*"
-  }
+  "bugs": "https://github.com/ollym/parrot/issues",
+  "repository": { "type": "git", "url": "git://github.com/ollym/parrot.git" },
+  "author": "Oliver Morgan <ollym@me.com> (https://github.com/ollym)",
+  "contributors": ["Benedict Blümel (https://benedictbluemel.de)"],
+  "main": "parrot.js",
+  "engines": { "node": "*" }
 }
